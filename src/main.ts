@@ -63,10 +63,10 @@ async function processOpenApiSpec(packageName: string, baseName: string) {
 paginate * with pagination
 
 // Use Data Transfer Objects (DTO)
-// dto * with mapstruct
+dto * with mapstruct
 
 // Set service options to all except few
-// service all with serviceImpl except JournalEntryLineItem, InvoiceLineItem, BillLineItem
+service all with serviceImpl
 
 // Set filter option
 filter *
@@ -178,6 +178,7 @@ async function generateEntity(schemaName: string, entity: Entity, globaleEnumera
         // Indicates whether a relationship is required internally
         const xRequired = getAdhocPropertyProperty(xRequiredKeyName, property);
 
+        // Process property that doesn't reference another entity
         if (isTypedProperty(property) && !hasXEntityRef) {
             if (property.type !== typeArray && property.type !== typeObject) {
                 var propType = mapPropertyType(property, propName, entity);
@@ -203,6 +204,7 @@ async function generateEntity(schemaName: string, entity: Entity, globaleEnumera
                     }
                 }
             }
+        // Process property that references an OAS3 model
         } else if (property.$ref && !hasXEntityRef) {
             const reference = property.$ref;
             const refEntityName = reference.substring(reference.lastIndexOf('/') + 1);
@@ -233,6 +235,7 @@ async function generateEntity(schemaName: string, entity: Entity, globaleEnumera
                 // }
                 propString += `${indent}${camelCase(propName)} ${refEntityName}${newLine}${newLine}`;
             }
+        // Process property that references another entity
         } else if (hasXEntityRef) {
             const refEntityName = hasXEntityRef.substring(hasXEntityRef.lastIndexOf('/') + 1);
             const modifiedPropName = propName.replace('_id', '');
@@ -247,6 +250,7 @@ async function generateEntity(schemaName: string, entity: Entity, globaleEnumera
             } else if (ormRelationship === relManyToOne || ormRelationship == undefined) {
                 manyToOneRelations.push(`${schemaNamePascalCase}{${camelCase(modifiedPropName)}${xRequired ? ' required' : ''}} to ${refEntityName}${newLine}`);
             }
+        // Process property that inherits from another
         } else if (property.allOf && property.allOf.length > 1) {
             const refEntry = property.allOf.find(val => val['$ref']) as { [key: string]: string; };
             const reference = refEntry['$ref'];
