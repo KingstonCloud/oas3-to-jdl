@@ -1,0 +1,561 @@
+openapi: 3.0.2
+info:
+    title: User Management API
+    version: 1.0.0
+    description: The User Management API
+    contact:
+        name: Kingston Cloud Limited
+        url: 'https://www.kingstoncloud.io'
+        email: hello@kingstoncloud.io
+servers:
+    -
+        url: 'http://localhost:8081/api'
+        description: Development server
+    -
+        url: 'https://localhost:8081/api'
+        description: Development server with TLS Profile
+paths:
+    /me/push-notification-token:
+        put:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PushNotificationToken'
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XUser'
+                    description: Updated user with push notification token.
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: updatePushNotificationToken
+            summary: Update the current user's push notification token.
+    /me/details:
+        put:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/XEntity'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XEntity'
+                    description: Updated user details
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: updateUserDetails
+            summary: Update user details
+    /user-registrations:
+        summary: Path used to manage the list of service consumer registrations.
+        description: >-
+            The REST endpoint/path used to list and create zero or more `User` entities.  This path contains a
+            `POST` operation to perform the create tasks, respectively.
+        post:
+            requestBody:
+                description: Register a new user.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Registration'
+                required: true
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XUser'
+                    description: Successful response.
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            security:
+                -
+                    api_key: []
+            operationId: registerUser
+            summary: Create a new User
+            description: Creates a new instance of a `User`.
+    /user-confirmations:
+        post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserAccountConfirmation'
+                required: true
+            responses:
+                '204':
+                    description: User confirmation successful.
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            security:
+                -
+                    api_key: []
+            operationId: confirmUser
+            summary: Confirm user
+    /me:
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XUser'
+                    description: Successful response - current user.
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: getUser
+        delete:
+            responses:
+                '204':
+                    description: Successful response.
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: deleteMe
+            summary: Delete the current user and their data
+            description: Allows a user to delete their account and data.
+    /me/profile-picture:
+        get:
+            responses:
+                '200':
+                    content:
+                        image/*:
+                            schema:
+                                format: binary
+                                type: string
+                    description: Image data.
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: getAvatar
+            summary: Return the avatar of a user.
+        put:
+            requestBody:
+                description: Base64 encoded image data.
+                content:
+                    text/plain:
+                        schema:
+                            type: string
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XUser'
+                    description: Updated user.
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: uploadAvatar
+            summary: Upload a new user avatar
+        delete:
+            responses:
+                '200':
+                    description: Avatar removed
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: deleteAvatar
+            summary: Delete a new user avatar
+    /me/settings:
+        put:
+            requestBody:
+                description: Base64 encoded image data.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/XUserSettings'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/XUserSettings'
+                    description: Updated user.
+                '400':
+                    $ref: '#/components/responses/ValidationErrorResponse'
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Unexpected error
+            operationId: updateMySettings
+            summary: Upload a new user's settings
+components:
+    schemas:
+        ValidationErrorResponse:
+            description: ''
+            required:
+                - fieldErrors
+            type: object
+            properties:
+                message:
+                    description: ''
+                    maxLength: 500
+                    pattern: '^\s+[^.!?]*[.!?]$'
+                    type: string
+                description:
+                    description: ''
+                    maxLength: 500
+                    pattern: '^\s+[^.!?]*[.!?]$'
+                    type: string
+                fieldErrors:
+                    description: ''
+                    maxItems: 100
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FieldValidationError'
+            additionalProperties: false
+            x-skip-persistence: true
+        FieldValidationError:
+            description: ''
+            required:
+                - field
+                - message
+            type: object
+            properties:
+                objectName:
+                    description: ''
+                    maxLength: 500
+                    type: string
+                field:
+                    description: ''
+                    maxLength: 500
+                    type: string
+                message:
+                    description: ''
+                    maxLength: 500
+                    pattern: '^\s+[^.!?]*[.!?]$'
+                    type: string
+            additionalProperties: false
+            x-skip-persistence: true
+        Error:
+            title: Root Type for Error
+            description: ''
+            type: object
+            properties:
+                error:
+                    type: string
+                message:
+                    type: string
+            example:
+                error: ERR-001
+                message: Something went wrong?
+            x-skip-persistence: true
+        PushNotificationToken:
+            description: ''
+            required:
+                - token
+            type: object
+            properties:
+                token:
+                    description: ''
+                    maxLength: 500
+                    type: string
+            additionalProperties: false
+            x-skip-persistence: true
+        UserAccountConfirmation:
+            description: ''
+            required:
+                - username
+                - confirmationCode
+            type: object
+            properties:
+                confirmationCode:
+                    description: ''
+                    maxLength: 10
+                    type: string
+                username:
+                    description: ''
+                    maxLength: 320
+                    type: string
+                successful:
+                    description: ''
+                    type: boolean
+            additionalProperties: false
+            x-skip-persistence: true
+        XUserSettings:
+            description: Represents the settings for a user.
+            type: object
+            properties:
+                uuid:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                pushNotificationToken:
+                    type: string
+                activeDeviceId:
+                    type: string
+                creationDateTime:
+                    format: date-time
+                    type: string
+                modifiedDateTime:
+                    format: date-time
+                    type: string
+        XUserTypeCode:
+            description: Enumeration of the types users
+            enum:
+                - PLANNER
+                - ADMINISTRATOR
+                - SYSTEM_ADMINISTRATOR
+                - TECHNICIAN
+                - ESTIMATOR
+                - PARTS_SPECIALIST
+                - CUSTOMER
+            type: string
+        XUserStatusTypeCode:
+            description: Enumeration of the types user status
+            enum:
+                - ACTIVE
+                - PENDING_VERIFICATION
+                - DEACTIVATED
+            type: string
+        Registration:
+            description: ''
+            required:
+                - tenantUuid
+                - email
+                - firstName
+                - lastName
+                - password
+                - phoneNumber
+            type: object
+            properties:
+                firstName:
+                    description: ''
+                    maxLength: 40
+                    type: string
+                lastName:
+                    description: ''
+                    maxLength: 40
+                    type: string
+                profileImageData:
+                    format: base64
+                    description: ''
+                    type: string
+                dateOfBirth:
+                    format: date
+                    description: ''
+                    type: string
+                password:
+                    format: password
+                    description: ''
+                    maxLength: 25
+                    type: string
+                name:
+                    maxLength: 40
+                    type: string
+                email:
+                    format: email
+                    maxLength: 256
+                    type: string
+                phoneNumber:
+                    maxLength: 15
+                    type: string
+                prefixTitles:
+                    maxLength: 12
+                    type: string
+                suffixTitles:
+                    maxLength: 12
+                    type: string
+                tenantUuid:
+                    format: uuid
+                    type: string
+            additionalProperties: false
+            x-skip-persistence: true
+        XEntity:
+            description: 'An XEntity is a person, department, group or system.'
+            type: object
+            properties:
+                uuid:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                name:
+                    maximum: 40
+                    type: string
+                firstName:
+                    maximum: 40
+                    type: string
+                middleName:
+                    maximum: 40
+                    type: string
+                lastName:
+                    maximum: 40
+                    type: string
+                dateOfBirth:
+                    format: date
+                    type: string
+                countryOfBirth:
+                    maximum: 3
+                    minimum: 3
+                    type: string
+                countryOfResidence:
+                    maximum: 3
+                    minimum: 3
+                    type: string
+                phoneNumber:
+                    maximum: 40
+                    type: string
+                email:
+                    type: string
+                prefixTitles:
+                    type: string
+                suffixTitles:
+                    type: string
+                profilePictureUrl:
+                    type: string
+                entityType:
+                    $ref: '#/components/schemas/XEntityTypeCode'
+                creationDateTime:
+                    format: date-time
+                    type: string
+                modifiedDateTime:
+                    format: date-time
+                    type: string
+        Tenant:
+            type: object
+            properties:
+                uuid:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                name:
+                    type: string
+                creationDateTime:
+                    format: date-time
+                    type: string
+                modifiedDateTime:
+                    format: date-time
+                    type: string
+                organizations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Organization'
+        XEntityTypeCode:
+            enum:
+                - PERSON
+                - DEPARTMENT
+                - GROUP
+                - SYSTEM
+            type: string
+        Organization:
+            description: An Organization is an administrative structure in which entities are active.
+            type: object
+            properties:
+                uuid:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                name:
+                    type: string
+                creationDateTime:
+                    format: date-time
+                    type: string
+                modifiedDateTime:
+                    format: date-time
+                    type: string
+        XUser:
+            description: Represents a user who is able to authenticate and use this system.
+            type: object
+            properties:
+                uuid:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                userType:
+                    $ref: '#/components/schemas/XUserTypeCode'
+                externalUuid:
+                    type: string
+                statusType:
+                    $ref: '#/components/schemas/XUserStatusTypeCode'
+                creationDateTime:
+                    format: date-time
+                    type: string
+                modifiedDateTime:
+                    format: date-time
+                    type: string
+                tenant_id:
+                    pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+                    type: string
+                    x-entity-ref: '#/components/schemas/Tenant'
+                    x-entity-relationship: many-to-one
+                relatedEntity:
+                    $ref: '#/components/schemas/XEntity'
+                    x-entity-relationship: one-to-one
+                userSettings:
+                    $ref: '#/components/schemas/XUserSettings'
+                    x-entity-relationship: one-to-one
+    responses:
+        ValidationErrorResponse:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ValidationErrorResponse'
+            description: ''
+        APIError:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Error'
+            description: ''
+    securitySchemes:
+        bearerAuth:
+            scheme: bearer
+            bearerFormat: JWT
+            type: http
+        api_key:
+            type: apiKey
+            name: api_key
+            in: header
+security:
+    -
+        api_key: []
+    -
+        bearerAuth: []

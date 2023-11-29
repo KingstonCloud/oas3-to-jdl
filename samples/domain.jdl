@@ -1,0 +1,176 @@
+application {
+    config {
+        baseName UserManagementApp
+        applicationType microservice
+        packageName io.kingstoncloud.app
+        authenticationType jwt
+        devDatabaseType h2Disk
+        prodDatabaseType postgresql
+        skipUserManagement true
+        skipClient true
+        testFrameworks [cucumber]
+        buildTool maven
+        cacheProvider no
+        databaseType sql
+        enableHibernateCache true
+        enableSwaggerCodegen false
+        entitySuffix Entity
+        languages [en, es]
+        nativeLanguage en
+    }
+    entities *
+}
+// Set pagination options
+paginate * with pagination
+
+// Use Data Transfer Objects (DTO)
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+
+// Set filter option
+filter */** Represents the settings for a user. */
+@persisted(yes)
+@clientInterface(no)
+@EntityPackage(gen)
+entity XUserSettings {
+    @Id
+    uuid String
+
+    pushNotificationToken String
+
+    activeDeviceId String
+
+    creationDateTime ZonedDateTime
+
+    modifiedDateTime ZonedDateTime
+
+}
+
+/** An XEntity is a person, department, group or system. */
+@persisted(yes)
+@clientInterface(no)
+@EntityPackage(gen)
+entity XEntity {
+    @Id
+    uuid String
+
+    name String
+
+    firstName String
+
+    middleName String
+
+    lastName String
+
+    dateOfBirth LocalDate
+
+    countryOfBirth String
+
+    countryOfResidence String
+
+    phoneNumber String
+
+    email String
+
+    prefixTitles String
+
+    suffixTitles String
+
+    profilePictureUrl String
+
+    entityType XEntityTypeCode
+
+    creationDateTime ZonedDateTime
+
+    modifiedDateTime ZonedDateTime
+
+}
+
+@persisted(yes)
+@clientInterface(no)
+@EntityPackage(gen)
+entity Tenant {
+    @Id
+    uuid String
+
+    name String
+
+    creationDateTime ZonedDateTime
+
+    modifiedDateTime ZonedDateTime
+
+}
+relationship OneToMany {
+    Tenant{organizations} to Organization
+}
+
+/** An Organization is an administrative structure in which entities are active. */
+@persisted(yes)
+@clientInterface(no)
+@EntityPackage(gen)
+entity Organization {
+    @Id
+    uuid String
+
+    name String
+
+    creationDateTime ZonedDateTime
+
+    modifiedDateTime ZonedDateTime
+
+}
+
+/** Represents a user who is able to authenticate and use this system. */
+@persisted(yes)
+@clientInterface(no)
+@EntityPackage(gen)
+entity XUser {
+    @Id
+    uuid String
+
+    userType XUserTypeCode
+
+    externalUuid String
+
+    statusType XUserStatusTypeCode
+
+    creationDateTime ZonedDateTime
+
+    modifiedDateTime ZonedDateTime
+
+}
+relationship OneToOne {
+    XUser{relatedEntity} to XEntity
+
+    XUser{userSettings} to XUserSettings
+}
+relationship ManyToOne {
+    XUser{tenant} to Tenant
+}
+
+
+/** Enumeration of the types users */
+enum XUserTypeCode {
+    PLANNER
+    ADMINISTRATOR
+    SYSTEM_ADMINISTRATOR
+    TECHNICIAN
+    ESTIMATOR
+    PARTS_SPECIALIST
+    CUSTOMER
+}
+/** Enumeration of the types user status */
+enum XUserStatusTypeCode {
+    ACTIVE
+    PENDING_VERIFICATION
+    DEACTIVATED
+}
+
+enum XEntityTypeCode {
+    PERSON
+    DEPARTMENT
+    GROUP
+    SYSTEM
+}

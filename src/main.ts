@@ -1,7 +1,9 @@
 const OpenAPIParser = require("@readme/openapi-parser");
 
 import { pascalCase, camelCase, snakeCase } from 'change-case';
-import { createFile, truncate, appendFile } from 'fs-extra';
+import { createFile, truncate, appendFile, readFile } from 'fs-extra';
+
+const usageText = `Usage npm run generate [ "<path-to-api-spec>" [ "<java-package-name>" [ "<app-name>" ] ] ]`;
 
 const indent = '    ';
 const xEntityRefKeyName = 'x-entity-ref';
@@ -23,26 +25,27 @@ const typeObject = 'object';
 const typeArray = 'array';
 const typeBoolean = 'boolean';
 
-async function processOpenApiSpec(packageName: string, baseName: string) {
-    if (packageName === undefined || packageName === '' || baseName === undefined || baseName === '') {
-        throw new Error(`Usage npm run generate -- <java-package-name> <app-name>`);
+async function processOpenApiSpec(pathToApiSpec: string, packageName: string, baseName: string) {
+    if (pathToApiSpec === undefined || pathToApiSpec === '' || packageName === undefined || packageName === '' || baseName === undefined || baseName === '') {
+        throw new Error(usageText);
     }
-    const api = await OpenAPIParser.parse('../api_spec/api.yml');
-    const fileName = './gen/domain.jdl';
-    createFile(fileName);
+    
+    const api = await OpenAPIParser.parse(pathToApiSpec);
+    const fileName = 'samples/domain.jdl';
+    await createFile(fileName);
     try {
         truncate(fileName);
     } catch (error) {
-        console.dir(error);
+        console.error(error);
     }
 
-    appendFile(fileName, `application {
+    var appConfig = `application {
     config {
         baseName ${baseName}
         applicationType microservice
         packageName ${packageName}
-        authenticationType oauth2
-        devDatabaseType postgresql
+        authenticationType jwt
+        devDatabaseType h2Disk
         prodDatabaseType postgresql
         skipUserManagement true
         skipClient true
@@ -58,7 +61,14 @@ async function processOpenApiSpec(packageName: string, baseName: string) {
     }
     entities *
 }
+    
+`;
 
+try {
+    appConfig = await readFile('partials/app_config.jdl', 'utf8');
+} catch(error) {}
+
+var jdlOptions = `
 // Set pagination options
 paginate * with pagination
 
@@ -70,8 +80,15 @@ service all with serviceImpl
 
 // Set filter option
 filter *
+    
+`;
 
-`);
+    try {
+        jdlOptions = await readFile('partials/global_options.jdl', 'utf8');
+    } catch(error) {}
+
+    await appendFile(fileName, `${appConfig}
+${jdlOptions}`);
 
     const schemas = api.components.schemas;
     const enumerations: { [key: string]: Entity; } = {};
@@ -418,9 +435,10 @@ interface Property extends BaseObject {
 }
 try {
     var args = process.argv.slice(2);
-    var packageName = args[0];
-    var baseName = args[1];
-    processOpenApiSpec(packageName, baseName);
+    var pathToApiSpec = args[0] ?? 'samples/api.yaml';
+    var packageName = args[1] ?? 'io.kingstoncloud.app';
+    var baseName = args[2] ?? 'UserManagementApp';
+    processOpenApiSpec(pathToApiSpec, packageName, baseName);
 } catch(e) {
-    throw new Error(`Usage npm run generate -- <java-package-name> <app-name>`);
+    throw new Error(usageText);
 }
