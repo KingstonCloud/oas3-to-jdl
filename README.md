@@ -44,11 +44,13 @@ jhipster jdl domain.jdl --skip-fake-data
 
 This extension is used to reference persisted entities for OAS3 model fields that represent the ID of some persisted entity. This extension is usually used in conjunction with `x-entity-relationship`.
 
-Type: `string`
-Location: `components -> schemas -> [ModelName] -> properties -> [property_name]`
+**Type:** `string`
+
+**Location:** `components -> schemas -> [ModelName] -> properties -> [property_name]`
+
 Possible values: See [Using $ref](https://swagger.io/docs/specification/using-ref/)
 
-Examples:
+**Example:**
 
 ```yaml
 XUser:
@@ -66,13 +68,15 @@ XUser:
 
 This extension is used to create entity relationships.
 
-Type: `string`
-Location: `components -> schemas -> [ModelName] -> properties -> [property_name]`
+**Type:** `string`
+
+**Location:** `components -> schemas -> [ModelName] -> properties -> [property_name]`
+
 Possible values: one-to-many | one-to-one | many-to-one | many-to-many
 
 Notes: Usually used in conjunction with `$ref` or `x-entity-ref`. The entity being referenced should not include `x-skip-persistence`
 
-Examples:
+**Example:**
 
 ```yaml
 XUser:
@@ -93,9 +97,11 @@ XUser:
 
 This extension is used to skip models that should not be persisted. Generally, these would be DTOs on the presentation layer.
 
-Type: `boolean`
-Location: `components -> schemas -> [ModelName]`
-Example:
+**Type:** `boolean`
+
+**Location:** `components -> schemas -> [ModelName]`
+
+**Example:**
 
 ```yaml
 ModelName:
@@ -113,10 +119,11 @@ ModelName:
 
 Used to indicate whether or not a field is mandatory for persistence.
 
-Type: `boolean`
-Location: `components -> schemas -> [ModelName] -> properties -> [property_name]`
+**Type:** `boolean`
 
-Examples:
+**Location:** `components -> schemas -> [ModelName] -> properties -> [property_name]`
+
+**Example:**
 
 ```yaml
 XUser:
@@ -132,7 +139,7 @@ XUser:
 
 Use to indicate the name of the parent field in a one-to-many relationship
 
-Examples:
+**Example:**
 
 ```yaml
 XUser:
@@ -151,9 +158,11 @@ XUser:
 
 Used to indicate the package in-which to put an entity
 
-Type: `string`
-Location: `components -> schemas -> [ModelName]`
-Example:
+**Type:** `string`
+
+**Location:** `components -> schemas -> [ModelName]`
+
+**Example:**
 
 ```yaml
 ModelName:
