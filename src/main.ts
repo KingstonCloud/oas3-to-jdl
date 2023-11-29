@@ -64,23 +64,23 @@ async function processOpenApiSpec(pathToApiSpec: string, packageName: string, ba
     
 `;
 
-try {
-    appConfig = await readFile('partials/app_config.jdl', 'utf8');
-} catch(error) {}
+    try {
+        appConfig = await readFile('partials/app_config.jdl', 'utf8');
+    } catch(error) {}
 
-var jdlOptions = `
-// Set pagination options
-paginate * with pagination
+    var jdlOptions = `
+    // Set pagination options
+    paginate * with pagination
 
-// Use Data Transfer Objects (DTO)
-dto * with mapstruct
+    // Use Data Transfer Objects (DTO)
+    dto * with mapstruct
 
-// Set service options to all except few
-service all with serviceImpl
+    // Set service options to all except few
+    service all with serviceImpl
 
-// Set filter option
-filter *
-    
+    // Set filter option
+    filter *
+        
 `;
 
     try {
