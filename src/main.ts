@@ -31,7 +31,7 @@ async function processOpenApiSpec(pathToApiSpec: string, packageName: string, ba
     }
     
     const api = await OpenAPIParser.parse(pathToApiSpec);
-    const fileName = 'samples/domain.jdl';
+    const fileName = 'output/domain.jdl';
     await createFile(fileName);
     try {
         truncate(fileName);
