@@ -48,7 +48,7 @@ This extension is used to reference persisted entities for OAS3 model fields tha
 
 **Location:** `components -> schemas -> [ModelName] -> properties -> [property_name]`
 
-Possible values: See [Using $ref](https://swagger.io/docs/specification/using-ref/)
+**Possible values:** See [Using $ref](https://swagger.io/docs/specification/using-ref/)
 
 **Example:**
 
@@ -72,7 +72,7 @@ This extension is used to create entity relationships.
 
 **Location:** `components -> schemas -> [ModelName] -> properties -> [property_name]`
 
-Possible values: one-to-many | one-to-one | many-to-one | many-to-many
+**Possible values:** one-to-many | one-to-one | many-to-one | many-to-many
 
 Notes: Usually used in conjunction with `$ref` or `x-entity-ref`. The entity being referenced should not include `x-skip-persistence`
 
