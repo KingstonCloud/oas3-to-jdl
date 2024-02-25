@@ -1,8 +1,8 @@
 # OAS3 to JDL
 
-The aim of this package is to aide developers in going from API contract to working code in the shortest amount of time possible.
+The aim of this package is to help developers go from API contract to working code in the shortest amount of time possible.
 
-This is done by using OAS3 (OpenAPI Specification 3) files and our custom OAS3 extensions to aide in the generation of Jhipster Domain Language (JDL) files.
+This is done by using OAS3 (OpenAPI Specification 3) files and our custom OAS3 extensions to aid in the generation of Jhipster Domain Language (JDL) files.
 
 Finally, you can use the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) to generate the presentation layer (REST API endpoints) and use the [Jhipster Generator](https://github.com/jhipster/generator-jhipster) to generate all the layers below the presentation layer. You will be responsible for connecting the two layers, but it's easier than coding all that manually.
 
