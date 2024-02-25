@@ -154,7 +154,7 @@ XUser:
       x-parent-field-name: "productOwner"
 ```
 
-# x-package-name
+## x-package-name
 
 Used to indicate the package in-which to put an entity
 
