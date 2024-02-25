@@ -25,13 +25,13 @@ const typeObject = 'object';
 const typeArray = 'array';
 const typeBoolean = 'boolean';
 
-async function processOpenApiSpec(pathToApiSpec: string, packageName: string, baseName: string) {
+async function processOpenApiSpec(pathToApiSpec: string, packageName: string, baseName: string, pathToOutputJdl: string) {
     if (pathToApiSpec === undefined || pathToApiSpec === '' || packageName === undefined || packageName === '' || baseName === undefined || baseName === '') {
         throw new Error(usageText);
     }
     
     const api = await OpenAPIParser.parse(pathToApiSpec);
-    const fileName = 'output/domain.jdl';
+    const fileName = pathToOutputJdl;
     await createFile(fileName);
     try {
         truncate(fileName);
@@ -438,7 +438,8 @@ try {
     var pathToApiSpec = args[0] ?? 'samples/api.yaml';
     var packageName = args[1] ?? 'io.kingstoncloud.app';
     var baseName = args[2] ?? 'UserManagementApp';
-    processOpenApiSpec(pathToApiSpec, packageName, baseName);
+    var pathToOutputJdl = args[3] ?? 'output/domain.jdl';
+    processOpenApiSpec(pathToApiSpec, packageName, baseName, pathToOutputJdl);
 } catch(e) {
     throw new Error(usageText);
 }
