@@ -115,7 +115,7 @@ ModelName:
   x-skip-persistence: true
 ```
 
-# x-required
+## x-required
 
 Used to indicate whether or not a field is mandatory for persistence.
 
@@ -135,7 +135,7 @@ XUser:
       x-required: true
 ```
 
-# x-parent-field-name
+## x-parent-field-name
 
 Use to indicate the name of the parent field in a one-to-many relationship
 
