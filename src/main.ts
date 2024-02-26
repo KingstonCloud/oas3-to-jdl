@@ -3,7 +3,14 @@ const OpenAPIParser = require("@readme/openapi-parser");
 import { pascalCase, camelCase, snakeCase } from 'change-case';
 import { createFile, truncate, appendFile, readFile } from 'fs-extra';
 
-const usageText = `Usage npm run generate [ "<path-to-api-spec>" [ "<java-package-name>" [ "<app-name>" ] ] ]`;
+const usageText = `Generate JDL file from OAS3 file
+Syntax: npm run generate -- [--input="<path-to-api-spec>" --package-name="<java-package-name>" --base-name="<app-name>" --output="output/domain.jdl"]
+Options:
+--input         Path to OAS3 file
+--package-name  Java package to use in the generated JDL
+--base-name     Base name to use in JDL
+--output        The location to output the JDL file
+`;
 
 const indent = '    ';
 const xEntityRefKeyName = 'x-entity-ref';
@@ -432,14 +439,16 @@ interface Property extends BaseObject {
     unique?: boolean;
 }
 
-function resolveArgument(argName: string, defaultValue: string, args?: Array<string>) {
+function resolveArgument(argName: string, defaultValue: string, args: Array<string>) {
     if (!args) {
         return defaultValue;
     }
     
     for (var el in args) {
-        var param = args[el].substring(2);
-        var parts = param.split('=');
+        if (args[el] === "--help") {
+            return 'true';
+        }
+        var parts = args[el].split('=');
         if (argName === parts[0]) {
             return parts[1];
         }
@@ -449,13 +458,18 @@ function resolveArgument(argName: string, defaultValue: string, args?: Array<str
 
 try {
     var args = process.argv.slice(2);
-    
-    var pathToApiSpec = resolveArgument('api-spec', 'samples/api.yaml', args);
-    var packageName = resolveArgument('package-name', 'io.kingstoncloud.app');
-    var baseName = resolveArgument('base-name', 'SampleApp');
-    var pathToOutputJdl = resolveArgument('jdl-output', 'output/domain.jdl');
-    console.info(`${pathToApiSpec} ${packageName} ${baseName} ${pathToOutputJdl}`)
-    processOpenApiSpec(pathToApiSpec, packageName, baseName, pathToOutputJdl);
+    var showHelp = resolveArgument('--help', 'false', args);
+
+    if (showHelp === 'true') {
+        console.info(usageText);
+    } else {
+        var pathToApiSpec = resolveArgument('--input', 'samples/api.yaml', args);
+        var packageName = resolveArgument('--package-name', 'io.kingstoncloud.app', args);
+        var baseName = resolveArgument('--base-name', 'SampleApp', args);
+        var pathToOutputJdl = resolveArgument('--output', 'output/domain.jdl', args);
+        
+        processOpenApiSpec(pathToApiSpec, packageName, baseName, pathToOutputJdl);
+    }
 } catch(e) {
     throw new Error(usageText);
 }
