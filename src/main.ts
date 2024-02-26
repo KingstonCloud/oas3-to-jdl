@@ -305,9 +305,7 @@ async function generateEntity(schemaName: string, entity: Entity, globaleEnumera
         entityDescription = `/** ${entity.description} */${newLine}`;
     }
     const packageAnnotation = getAdhocPropertyProperty(xPackageName, entity);
-    const annotations = `@persisted(yes)
-@clientInterface(no)
-@EntityPackage(${packageAnnotation ?? 'gen'})${newLine}`;
+    const annotations = `@EntityPackage(${packageAnnotation ?? 'gen'})${newLine}`;
     return `${entityDescription}${annotations}entity ${pascalCase(schemaName)} {${newLine}${propString.replace(/\r?\n$/, "")}${newLine}}${newLine}${enumerations}${relations}${newLine}`;
 }
 
@@ -433,12 +431,30 @@ interface Property extends BaseObject {
     allOf?: [{ [key: string]: string; }];
     unique?: boolean;
 }
+
+function resolveArgument(argName: string, defaultValue: string, args?: Array<string>) {
+    if (!args) {
+        return defaultValue;
+    }
+    
+    for (var el in args) {
+        var param = args[el].substring(2);
+        var parts = param.split('=');
+        if (argName === parts[0]) {
+            return parts[1];
+        }
+    }
+    return defaultValue;
+}
+
 try {
     var args = process.argv.slice(2);
-    var pathToApiSpec = args[0] ?? 'samples/api.yaml';
-    var packageName = args[1] ?? 'io.kingstoncloud.app';
-    var baseName = args[2] ?? 'UserManagementApp';
-    var pathToOutputJdl = args[3] ?? 'output/domain.jdl';
+    
+    var pathToApiSpec = resolveArgument('api-spec', 'samples/api.yaml', args);
+    var packageName = resolveArgument('package-name', 'io.kingstoncloud.app');
+    var baseName = resolveArgument('base-name', 'SampleApp');
+    var pathToOutputJdl = resolveArgument('jdl-output', 'output/domain.jdl');
+    console.info(`${pathToApiSpec} ${packageName} ${baseName} ${pathToOutputJdl}`)
     processOpenApiSpec(pathToApiSpec, packageName, baseName, pathToOutputJdl);
 } catch(e) {
     throw new Error(usageText);
